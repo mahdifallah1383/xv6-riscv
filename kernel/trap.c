@@ -68,9 +68,32 @@ usertrap(void)
   } else if((which_dev = devintr()) != 0){
     // ok
   } else {
-    printf("usertrap(): unexpected scause 0x%lx pid=%d\n", r_scause(), p->pid);
-    printf("            sepc=0x%lx stval=0x%lx\n", r_sepc(), r_stval());
+    // printf("usertrap(): unexpected scause 0x%lx pid=%d\n", r_scause(), p->pid);
+    // printf("            sepc=0x%lx stval=0x%lx\n", r_sepc(), r_stval());
+    r_scause();
+    r_sepc();
+    r_stval();
     setkilled(p);
+
+    struct report rp;
+    struct proc* parent = p->parent;
+    rp.pcount = 0;
+    while (parent > 0)
+    {
+      rp.ppid[rp.pcount++] = parent->pid;
+      parent = parent->parent;
+    }
+    rp.pid = p->pid;
+    
+    strncpy(rp.pname, p->name, sizeof(p->name));
+
+    rp.scause= r_scause();
+    rp.sepc = r_sepc();
+    rp.stval = r_stval();
+
+    report_list.reports[report_list.writeIndex++] = rp;
+    report_list.writeIndex %= MAX_REPORT_BUFFER_SIZE;
+    report_list.numberOfReports++;
   }
 
   if(killed(p))

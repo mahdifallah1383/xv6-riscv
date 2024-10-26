@@ -6,6 +6,8 @@
 #include "proc.h"
 #include "defs.h"
 
+struct internal_report_list report_list;
+
 struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
@@ -723,5 +725,33 @@ childProc(struct child_processes* cp)
     }
   }
   release(&p->lock);
+  return 0;
+}
+
+int
+reportTrp(struct report_traps* rps)
+{
+  int lscount = report_list.writeIndex;
+  
+  if(lscount == 0)
+    lscount = MAX_REPORT_BUFFER_SIZE;
+
+  rps->count = 0;
+  struct proc* mp = myproc();
+  
+  for(int i = 0; i < lscount; i++)
+  {
+    struct report rp = report_list.reports[i];
+    
+    for(int j = 0; j < rp.pcount; j++)
+    {
+      if(rp.ppid[j] == mp->pid)
+      {
+        rps->reports[rps->count++] = rp;
+        break;
+      }
+    }
+  }
+  
   return 0;
 }

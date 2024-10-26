@@ -141,6 +141,7 @@ UPROGS=\
 	$U/_zombie\
 	$U/_helloWorld\
 	$U/_childProc\
+	$U/_reportTrp\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

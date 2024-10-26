@@ -1,3 +1,7 @@
+#define MAX_REPORT_BUFFER_SIZE 10
+
+extern struct internal_report_list report_list;
+
 // Saved registers for kernel context switches.
 struct context {
   uint64 ra;
@@ -114,4 +118,25 @@ struct proc_info {
 struct child_processes {
   int count;
   struct proc_info processes[NPROC];
+};
+
+struct report {
+  int ppid[10];
+  int pcount;
+  char pname[16];
+  int pid;
+  uint64 scause;
+  uint64 sepc;
+  uint64 stval;
+};
+
+struct internal_report_list {
+    struct report reports[MAX_REPORT_BUFFER_SIZE];
+    int numberOfReports;
+    int writeIndex;
+};
+
+struct report_traps {
+  struct report reports[MAX_REPORT_BUFFER_SIZE];
+  int count;
 };

@@ -107,3 +107,20 @@ sys_childProc(void)
 
   return error;
 }
+
+uint64
+sys_reportTrp(void)
+{
+  struct report_traps* reports;
+  struct report_traps result_reports;
+
+  argaddr(0, (uint64*)&reports);
+
+  int error = reportTrp(&result_reports);
+
+  struct proc* prc = myproc();
+
+  copyout(prc->pagetable, (uint64)reports, (char*)&result_reports, sizeof(result_reports));
+
+  return error;
+}
